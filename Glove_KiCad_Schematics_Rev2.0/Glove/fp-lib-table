@@ -1,0 +1,5 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Library")(type "KiCad")(uri "C:/Users/minet/Documents/Embedded Schematics/Glove_KiCad_Schematics_Rev2.0/Library.pretty")(options "")(descr ""))
+  (lib (name "ESP")(type "KiCad")(uri "C:/Users/minet/Documents/Embedded Schematics/KiCad_Schematics/ESP.pretty")(options "")(descr "")(disabled))
+)

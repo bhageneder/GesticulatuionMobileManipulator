@@ -1,0 +1,157 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "007c29f5-91f3-46c1-b69e-ddf0568a1cc9")
+	(paper "A4")
+	(lib_symbols)
+	(text "Typ draw for the esp32 is 3v3 at 500mA"
+		(exclude_from_sim no)
+		(at 246.38 34.798 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "c18ce289-adc4-4614-8daa-15e7166ec769")
+	)
+	(text "Typ draw hall effect sensor is 9 mA at 5V X3"
+		(exclude_from_sim no)
+		(at 245.872 29.21 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "cc20cd28-2754-488b-95a9-6d0e179b7ac2")
+	)
+	(text "Typ draw gyro-accelerometer is 4 mA at 3V3"
+		(exclude_from_sim no)
+		(at 245.618 24.892 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "e7577913-dcf7-447e-ac6c-2613524215b0")
+	)
+	(sheet
+		(at 20.32 168.91)
+		(size 31.75 19.05)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "324fcd38-5554-4dcc-9d22-531c19086326")
+		(property "Sheetname" "ESP32"
+			(at 20.32 168.1984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "ESP32.kicad_sch"
+			(at 20.32 188.5446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "Glove_Footprint_Rev1.1"
+				(path "/007c29f5-91f3-46c1-b69e-ddf0568a1cc9"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 107.95 168.91)
+		(size 35.56 19.05)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "73071d11-6950-4ce7-90e5-0b8c48e77562")
+		(property "Sheetname" "Sensors"
+			(at 107.95 168.1984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Sensors.kicad_sch"
+			(at 107.95 188.5446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "Glove_Footprint_Rev1.1"
+				(path "/007c29f5-91f3-46c1-b69e-ddf0568a1cc9"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 63.5 168.91)
+		(size 33.02 19.05)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "868ca617-a5c8-4d1a-b2e3-4f166d46719d")
+		(property "Sheetname" "Power_Regulation"
+			(at 63.5 168.1984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "Power_Regulation.kicad_sch"
+			(at 63.5 188.5446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "Glove_Footprint_Rev1.1"
+				(path "/007c29f5-91f3-46c1-b69e-ddf0568a1cc9"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+)
