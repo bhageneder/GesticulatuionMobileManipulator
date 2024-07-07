@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "LD1085V50")(type "KiCad")(uri "${KIPRJMOD}/LD1085V50/LD1085V50.kicad_sym")(options "")(descr ""))
+  (lib (name "RASPBERRY_PI_4B_4GB")(type "KiCad")(uri "${KIPRJMOD}/RASPBERRY_PI_4B_4GB/RASPBERRY_PI_4B_4GB.kicad_sym")(options "")(descr ""))
+)

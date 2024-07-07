@@ -2,8 +2,8 @@
 #include <WiFi.h>
 
 // Replace with your network credentials
-const char* ssid = "ESP-Network";
-const char* password = "SecurePassword";
+const char* ssid = "ESPNetwork";
+const char* password = "password123";
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -12,9 +12,12 @@ WiFiServer server(80);
 String header;
 
 // Assign output variables
-const bool forward  = false;
-const bool left     = false;
-const bool right    = false;
+String forwardState  = "off";
+String leftState     = "off";
+String rightState    = "off";
+bool forward = false;
+bool left    = false;
+bool right   = false;
 
 // Current time
 unsigned long currentTime = millis();
@@ -25,22 +28,19 @@ const long timeoutTime = 10000;
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial);
-  delay(2000);
+  while(!Serial);
+  delay(3000);
 
   // Connect to Wi-Fi network with SSID and password
   Serial.print("Connecting to ");
   Serial.println(ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
+  WiFi.softAP(ssid, password);
+  
   // Print local IP address and start web server
   Serial.println("");
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println(WiFi.softAPIP());
   server.begin();
 }
 
@@ -68,26 +68,32 @@ void loop(){
             client.println("Content-type:text/html");
             client.println("Connection: close");
             client.println();
-            
-            // turns the GPIOs on and off
+
+            // turns the directions on and off
             if (header.indexOf("GET /forward/on") >= 0) {
               Serial.println("Forward");
-              forward = true;
+              forward       = true;
+              forwardState  = "on";
             } else if (header.indexOf("GET /forward/off") >= 0) {
               Serial.println("Stop");
-              forward = false;
+              forward       = false;
+              forwardState  = "off";
             } else if (header.indexOf("GET /left/on") >= 0) {
               Serial.println("Left");
-              left = true;
+              left      = true;
+              leftState = "on";
             } else if (header.indexOf("GET /left/off") >= 0) {
               Serial.println("Stop");
-              left = false;
+              left      = false;
+              leftState = "off";
             } else if (header.indexOf("GET /right/on") >= 0 ) {
               Serial.println("Right");
-              right = true;
+              right       = true;
+              rightState  = "on";
             } else if (header.indexOf("GET /right/off") >= 0) {
               Serial.println("Stop");
-              right = false;
+              right       = false;
+              rightState  = "off";
             }
             
             // Display the HTML web page
@@ -105,7 +111,7 @@ void loop(){
             client.println("<body><h1>ESP32 Web Server</h1>");
             
             // Display current state, and ON/OFF buttons for Forward  
-            client.println("<p>Forward State " + forward + "</p>");
+            client.println("<p>Forward State " + forwardState + "</p>");
             // If Forward is off, it displays the ON button       
             if (forward == false) {
               client.println("<p><a href=\"/forward/on\"><button class=\"button\">ON</button></a></p>");
@@ -114,7 +120,7 @@ void loop(){
             } 
                
             // Display current state, and ON/OFF buttons for Left  
-            client.println("<p>Left State " + left + "</p>");
+            client.println("<p>Left State " + leftState + "</p>");
             // If Left is off, it displays the ON button       
             if (left == false) {
               client.println("<p><a href=\"/left/on\"><button class=\"button\">ON</button></a></p>");
@@ -123,7 +129,7 @@ void loop(){
             }
 
             // Display current state, and ON/OFF buttons for Right  
-            client.println("<p>Right State " + right + "</p>");
+            client.println("<p>Right State " + rightState + "</p>");
             // If Right is off, it displays the ON button       
             if (right == false) {
               client.println("<p><a href=\"/right/on\"><button class=\"button\">ON</button></a></p>");

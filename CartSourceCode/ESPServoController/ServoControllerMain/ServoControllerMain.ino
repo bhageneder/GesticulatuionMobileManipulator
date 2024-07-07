@@ -23,7 +23,7 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 uint8_t servonum = 0;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial);
   delay(2000);
   Serial.println("Servo test!");
@@ -72,7 +72,7 @@ void loop() {
   // pwm.setPWM(Servo Number, ON (0), Pulse Length) --> SERVOMIN = Forward; SERVOMAX = Stop; SERVOMAX / 2 = Reverse 
   pwm.setPWM(0, 0, SERVOMIN);
   pwm.setPWM(1, 0, (SERVOMAX / 2));
-  delay(2000);
+  delay(5000);
 
   Serial.println("Stop");
   pwm.setPWM(0, 0, SERVOMAX);
@@ -82,7 +82,7 @@ void loop() {
   Serial.println("Reverse");
   pwm.setPWM(0, 0, (SERVOMAX/2));
   pwm.setPWM(1, 0, SERVOMIN);
-  delay(2000);
+  delay(5000);
 
   Serial.println("Stop");
   pwm.setPWM(0, 0, SERVOMAX);

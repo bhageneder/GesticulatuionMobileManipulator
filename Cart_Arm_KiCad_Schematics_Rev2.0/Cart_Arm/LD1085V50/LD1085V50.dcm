@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP LD1085V50
+D LD1085V50, Low Dropout Voltage Regulator, 3A, 5 V +/-1%, 3-Pin TO-220
+K
+F http://www.st.com/web/en/resource/technical/document/datasheet/CD00001883.pdf
+$ENDCMP
+#
+#End Doc Library
