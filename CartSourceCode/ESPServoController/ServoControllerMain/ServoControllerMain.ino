@@ -12,15 +12,11 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // want these to be as small/large as possible without hitting the hard stop
 // for max range. You'll have to tweak them as necessary to match the servos you
 // have!
-#define SERVOMIN  150 // This is the 'minimum' pulse length count (out of 4096)
-#define SERVOMAX  600 // This is the 'maximum' pulse length count (out of 4096)
-#define USMIN  600 // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
-#define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
+#define SERVOCW  410 
+#define SERVOSTOP  600 
+#define SERVOCOUNTERCW 205  
 
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
-
-// our servo # counter
-uint8_t servonum = 0;
 
 void setup() {
   Serial.begin(115200);
@@ -67,41 +63,55 @@ void setServoPulse(uint8_t n, double pulse) {
   pwm.setPWM(n, 0, pulse);
 }
 
-void loop() {
+void testServoPulse() {
   Serial.println("Foward");
-  // pwm.setPWM(Servo Number, ON (0), Pulse Length) --> SERVOMIN = Forward; SERVOMAX = Stop; SERVOMAX / 2 = Reverse 
-  pwm.setPWM(0, 0, SERVOMIN);
-  pwm.setPWM(1, 0, (SERVOMAX / 2));
-  delay(5000);
+  setServoPulse(0, 0.002);
+  setServoPulse(1, 0.001);
+  delay(2000);
 
   Serial.println("Stop");
-  pwm.setPWM(0, 0, SERVOMAX);
-  pwm.setPWM(1, 0, SERVOMAX);
+  pwm.setPWM(0, 0, SERVOSTOP);
+  pwm.setPWM(1, 0, SERVOSTOP);
   delay(2000);
 
   Serial.println("Reverse");
-  pwm.setPWM(0, 0, (SERVOMAX/2));
-  pwm.setPWM(1, 0, SERVOMIN);
-  delay(5000);
-
-  Serial.println("Stop");
-  pwm.setPWM(0, 0, SERVOMAX);
-  pwm.setPWM(1, 0, SERVOMAX);
+  setServoPulse(0, 0.001);
+  setServoPulse(1, 0.002);
   delay(2000);
 
-  // Drive each servo one at a time using setPWM()
-  // Serial.println(servonum);
+  Serial.println("Stop");
+  pwm.setPWM(0, 0, SERVOSTOP);
+  pwm.setPWM(1, 0, SERVOSTOP);
+  delay(2000);
+}
 
-  // for (uint16_t pulselen = SERVOMIN; pulselen < SERVOMAX; pulselen++) {
-  //   pwm.setPWM(servonum, 0, pulselen);
-  //   Serial.println(pulselen);
-  // }
+void testServoLimits() {
+  Serial.println("Foward");
+  Serial.println(SERVOCW);
+  Serial.println(SERVOSTOP);
+  pwm.setPWM(0, 1, SERVOCW);
+  pwm.setPWM(1, 0, SERVOCOUNTERCW);
+  delay(2000);
 
-  // for (uint16_t pulselen = SERVOMAX; pulselen > SERVOMIN; pulselen--) {
-  //   pwm.setPWM(servonum, 0, pulselen);
-  //   Serial.println(pulselen);
-  // }
+  Serial.println("Stop");
+  pwm.setPWM(0, 0, SERVOSTOP);
+  pwm.setPWM(1, 0, SERVOSTOP);
+  delay(2000);
 
-  // servonum++;
-  // if (servonum > 7) servonum = 0; // Testing the first 8 servo channels
+  Serial.println("Reverse");
+  pwm.setPWM(0, 0, SERVOCOUNTERCW);
+  pwm.setPWM(1, 1, SERVOCW);
+  delay(2000);
+
+  Serial.println("Stop");
+  pwm.setPWM(0, 0, SERVOSTOP);
+  pwm.setPWM(1, 0, SERVOSTOP);
+  delay(2000);
+}
+
+
+void loop() {
+  //testServoPulse();
+
+  testServoLimits();
 }
