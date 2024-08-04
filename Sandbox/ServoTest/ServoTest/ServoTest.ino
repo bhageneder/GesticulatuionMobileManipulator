@@ -31,8 +31,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // want these to be as small/large as possible without hitting the hard stop
 // for max range. You'll have to tweak them as necessary to match the servos you
 // have!
-#define SERVOMIN  150 // This is the 'minimum' pulse length count (out of 4096)
-#define SERVOMAX  600 // This is the 'maximum' pulse length count (out of 4096)
+#define SERVOMIN  125 // This is the 'minimum' pulse length count (out of 4096)
+#define SERVOMAX  475 // This is the 'maximum' pulse length count (out of 4096)
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 
 // our servo # counter
@@ -69,6 +69,18 @@ void setup() {
 void loop() {
   // while (Serial.available() == 0) {}
   // int pulselen = Serial.parseInt();
+
+  // vertical
+  // servo min: 130
+  // servo max: 475
+
+  // horizontal:
+  // servo min: 70
+  // servo max: 500
+
+  // heavy duty:
+  // servo min: 250
+  // servo max: 500
   
   // Drive each servo one at a time using setPWM()
   Serial.println("Enter servo to control: ");
@@ -90,4 +102,21 @@ void loop() {
   Serial.print(pulselen);
   Serial.println();
   pwm.setPWM(servonum, 0, pulselen);
+
+  // Serial.println("Enter degree to turn to: ");
+  // while (Serial.available() == 0) {
+  //   // Wait for input
+  // }
+  // int degree = Serial.readStringUntil('\n').toInt();
+  // Serial.flush();
+  // delay(500);
+  // int pulselen = map(degree, 0, 270, SERVOMIN, SERVOMAX);
+
+  // Serial.print("Degree entered is: ");
+  // Serial.print(degree);
+  // Serial.println();
+  // Serial.print("Corresponding pulselength is: ");
+  // Serial.print(pulselen);
+  // Serial.println();
+  // pwm.setPWM(servonum, 0, pulselen);
 }
