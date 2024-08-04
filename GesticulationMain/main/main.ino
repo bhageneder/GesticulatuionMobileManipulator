@@ -25,7 +25,7 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define SERVOSTOP  600  // PWM length to stop continuous movement
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
 uint8_t servoNum = 0;
-bool carMode = false;
+bool cartMode = false;
 bool armMode = false;
 // ==========================================================
 
@@ -78,6 +78,7 @@ int mapYAWAngleToPWM(int degrees) {
   Serial.print(degrees);
   Serial.print(" --> ");
   Serial.print(pulselen);
+  Serial.println();
   return pulselen;
 }
 
@@ -87,6 +88,7 @@ int mapPITCHAngleToPWM(int degrees) {
   Serial.print(degrees);
   Serial.print(" --> ");
   Serial.print(pulselen);
+  Serial.println();
   return pulselen;
 }
 
@@ -96,6 +98,7 @@ int mapSHOULDERAngleToPWM(int degrees) {
   Serial.print(degrees);
   Serial.print(" --> ");
   Serial.print(pulselen);
+  Serial.println();
   return pulselen;
 }
 // ==========================================================
@@ -149,7 +152,7 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
   if (jointinfo.fingers == 1) {
     cartMode = true;
     armMode = false;
-  } else if (joinginfo.fingers == 2) {
+  } else if (jointinfo.fingers == 2) {
     cartMode = false;
     armMode = true;
   } else {
@@ -166,7 +169,7 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
   } else if (armMode) {
     Serial.println("Arm Mode!");
     
-    Serial.println("Moving Shoulder.")
+    Serial.println("Moving Shoulder.");
     // Shoulder YAW
     mapYAWAngleToPWM(jointinfo.joint1);
     // Shoulder PITCH
@@ -184,7 +187,7 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
     // Wrist YAW
     mapYAWAngleToPWM(jointinfo.joint5);
     // Wrist PITCH
-    mapPITCHANGLETOPWM(jointinfo.joint6);
+    mapPITCHAngleToPWM(jointinfo.joint6);
 
     Serial.println("Movement Complete!");
   }
