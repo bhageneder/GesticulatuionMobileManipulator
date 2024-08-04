@@ -83,7 +83,7 @@ int mapYAWAngleToPWM(float degrees) {
 }
 
 int mapPITCHAngleToPWM(float degrees) {
-  Serial.println("Mapping PITCH Servo: ");
+  Serial.print("Mapping PITCH Servo: ");
   int pulselen = map(degrees, 0, 270, PITCHSERVOMIN, PITCHSERVOMAX);
   Serial.print(degrees);
   Serial.print(" --> ");
@@ -93,7 +93,7 @@ int mapPITCHAngleToPWM(float degrees) {
 }
 
 int mapSHOULDERAngleToPWM(float degrees) {
-    Serial.println("Mapping SHOULDER Servo: ");
+    Serial.print("Mapping SHOULDER Servo: ");
   int pulselen = map(degrees, 0, 270, SHOULDERSERVOMIN, SHOULDERSERVOMAX);
   Serial.print(degrees);
   Serial.print(" --> ");
