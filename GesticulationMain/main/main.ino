@@ -33,9 +33,9 @@ bool armMode = false;
 // ==========================================================
 typedef struct joint_state_values {
   int fingers;
-  int rawx;
-  int rawy;
-  int rawz;
+  float rawx;
+  float rawy;
+  float rawz;
   float joint1;
   float joint2;
   float joint3;
@@ -72,7 +72,7 @@ void moveStop() {
   pwm.setPWM(1, 0, SERVOSTOP);
 }
 
-int mapYAWAngleToPWM(int degrees) {
+int mapYAWAngleToPWM(float degrees) {
   Serial.print("mapping YAW Servo: ");
   int pulselen = map(degrees, 0, 270, YAWSERVOMIN, YAWSERVOMAX);
   Serial.print(degrees);
@@ -82,7 +82,7 @@ int mapYAWAngleToPWM(int degrees) {
   return pulselen;
 }
 
-int mapPITCHAngleToPWM(int degrees) {
+int mapPITCHAngleToPWM(float degrees) {
   Serial.println("Mapping PITCH Servo: ");
   int pulselen = map(degrees, 0, 270, PITCHSERVOMIN, PITCHSERVOMAX);
   Serial.print(degrees);
@@ -92,7 +92,7 @@ int mapPITCHAngleToPWM(int degrees) {
   return pulselen;
 }
 
-int mapSHOULDERAngleToPWM(int degrees) {
+int mapSHOULDERAngleToPWM(float degrees) {
     Serial.println("Mapping SHOULDER Servo: ");
   int pulselen = map(degrees, 0, 270, SHOULDERSERVOMIN, SHOULDERSERVOMAX);
   Serial.print(degrees);
@@ -108,8 +108,42 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
   // Copy the received data into the joint_state_values structure
   memcpy(&jointinfo, incomingData, len);
 
-  // Print the received joint values
-  Serial.println("Received joint state values:");
+  if (jointinfo.fingers == 2) {
+    Serial.println("Control Finger: Cart");
+    cartMode = true;
+    armMode = false;
+  } else if (jointinfo.fingers == 1) {
+    Serial.println("Control Finger: Arm");
+    cartMode = false;
+    armMode = true;
+  } else {
+    Serial.println("Unrecognized/No finger input, defaulting to: NONE");
+    cartMode = false;
+    armMode = false;
+  }
+  
+
+  if (cartMode) {
+    Serial.println("Cart Mode!");
+    // Do something here with cart mode
+    // use gravity with gyro and whichever axis corresponds to a direction
+    Serial.println("Raw Accel Positions: ");
+    Serial.print("X: ");
+    Serial.print(jointinfo.rawx);
+    Serial.println();
+    Serial.print("Y: ");
+    Serial.print(jointinfo.rawy);
+    Serial.println();
+    Serial.print("Z: ");
+    Serial.print(jointinfo.rawz);
+    Serial.println();
+
+  } else if (armMode) {
+    Serial.println("Arm Mode!");
+    int pulse = 0;
+
+    // Print the received joint values
+    Serial.println("Received joint state values:");
     Serial.print("Joint 1");
     Serial.print(": ");
     Serial.println(jointinfo.joint1);
@@ -133,62 +167,36 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
     Serial.print("Joint 6");
     Serial.print(": ");
     Serial.println(jointinfo.joint6);
-
-   Serial.print("Control Finger: Finger ");
-   Serial.print(jointinfo.fingers);
-   Serial.println();
-   Serial.println("Raw Accel Positions: ");
-   Serial.print("X: ");
-   Serial.print(jointinfo.rawx);
-   Serial.println();
-   Serial.print("Y: ");
-   Serial.print(jointinfo.rawy);
-   Serial.println();
-   Serial.print("Z: ");
-   Serial.print(jointinfo.rawz);
-   Serial.println();
-   Serial.println("Completed Info Read");
-
-  if (jointinfo.fingers == 1) {
-    cartMode = true;
-    armMode = false;
-  } else if (jointinfo.fingers == 2) {
-    cartMode = false;
-    armMode = true;
-  } else {
-    Serial.println("Unrecognized/No finger input, defaulting to: NONE");
-    cartMode = false;
-    armMode = false;
-  }
-
-  if (cartMode) {
-    Serial.println("Cart Mode!");
-    // Do something here with cart mode
-    // use gravity with gyro and whichever axis corresponds to a direction
-
-  } else if (armMode) {
-    Serial.println("Arm Mode!");
     
     Serial.println("Moving Shoulder.");
+
     // Shoulder YAW
-    mapYAWAngleToPWM(jointinfo.joint1);
+    pulse = mapYAWAngleToPWM(jointinfo.joint1);
+    pwm.setPWM(7, 0, pulse);
+    
     // Shoulder PITCH
-    mapSHOULDERAngleToPWM(jointinfo.joint2);
+    pulse = mapSHOULDERAngleToPWM(jointinfo.joint2);
+    pwm.setPWM(8, 0, pulse);
     delay(333);
 
     Serial.println("Moving Elbow.");
     // Elbow YAW
-    mapYAWAngleToPWM(jointinfo.joint3);
+    pulse = mapYAWAngleToPWM(jointinfo.joint3);
+    pwm.setPWM(9, 0, pulse);
     // Elbow PITCH
-    mapPITCHAngleToPWM(jointinfo.joint4);
+    pulse = mapPITCHAngleToPWM(jointinfo.joint4);
+    pwm.setPWM(10, 0, pulse);
     delay(333);
 
     Serial.println("Moving Wrist.");
     // Wrist YAW
-    mapYAWAngleToPWM(jointinfo.joint5);
+    pulse = mapYAWAngleToPWM(jointinfo.joint5);
+    pwm.setPWM(11, 0, pulse);
     // Wrist PITCH
-    mapPITCHAngleToPWM(jointinfo.joint6);
+    pulse = mapPITCHAngleToPWM(jointinfo.joint6);
+    pwm.setPWM(12, 0, pulse);
 
+    Serial.println("Completed Info Read");
     Serial.println("Movement Complete!");
   }
 }
