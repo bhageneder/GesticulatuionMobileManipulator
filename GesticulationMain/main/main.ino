@@ -220,7 +220,7 @@ void setup() {
 
   // Initialize pwm for servo motors
   pwm.begin();
-  pwm.setOscillatorFrequency(27000000);
+  pwm.setOscillatorFrequency(25250000);
   pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates
   delay(200);
 
