@@ -78,7 +78,7 @@ void moveStop() {
 int mapYAWAngleToPWM(float degrees) {
   int pulselen = map(degrees, 0, 270, YAWSERVOMIN, YAWSERVOMAX);
   if (debugArm) {
-    Serial.print("mapping YAW Servo: ");
+    Serial.print("Mapping YAW Servo: ");
     Serial.print(degrees);
     Serial.print(" --> ");
     Serial.print(pulselen);
@@ -191,6 +191,7 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
       Serial.println(jointinfo.joint6);
     }
     
+    Serial.println("================");
     Serial.println("Moving Shoulder.");
 
     // Shoulder YAW
@@ -200,8 +201,9 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
     // Shoulder PITCH
     pulse = mapSHOULDERAngleToPWM(jointinfo.joint2);
     pwm.setPWM(8, 0, pulse);
-    delay(333);
+    delay(1500);
 
+    Serial.println("================");
     Serial.println("Moving Elbow.");
     // Elbow YAW
     pulse = mapYAWAngleToPWM(jointinfo.joint3);
@@ -209,8 +211,9 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
     // Elbow PITCH
     pulse = mapPITCHAngleToPWM(jointinfo.joint4);
     pwm.setPWM(10, 0, pulse);
-    delay(333);
+    delay(1500);
 
+    Serial.println("================");
     Serial.println("Moving Wrist.");
     // Wrist YAW
     pulse = mapYAWAngleToPWM(jointinfo.joint5);
@@ -218,6 +221,8 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
     // Wrist PITCH
     pulse = mapPITCHAngleToPWM(jointinfo.joint6);
     pwm.setPWM(12, 0, pulse);
+    delay(1500);
+    Serial.println("================");
 
     Serial.println("Completed Info Read");
     Serial.println("Movement Complete!");

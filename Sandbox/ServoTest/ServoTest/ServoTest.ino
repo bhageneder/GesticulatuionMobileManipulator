@@ -91,32 +91,32 @@ void loop() {
   Serial.flush();
   delay(500);
   
-  Serial.println("Enter pulselength to use: ");
-  while (Serial.available() == 0) {
-    // Wait for input
-  }
-  int pulselen = Serial.readStringUntil('\n').toInt();
-  Serial.flush();
-  delay(500);
-  Serial.print("The pulselen is: ");
-  Serial.print(pulselen);
-  Serial.println();
-  pwm.setPWM(servonum, 0, pulselen);
-
-  // Serial.println("Enter degree to turn to: ");
+  // Serial.println("Enter pulselength to use: ");
   // while (Serial.available() == 0) {
   //   // Wait for input
   // }
-  // int degree = Serial.readStringUntil('\n').toInt();
+  // int pulselen = Serial.readStringUntil('\n').toInt();
   // Serial.flush();
   // delay(500);
-  // int pulselen = map(degree, 0, 270, SERVOMIN, SERVOMAX);
-
-  // Serial.print("Degree entered is: ");
-  // Serial.print(degree);
-  // Serial.println();
-  // Serial.print("Corresponding pulselength is: ");
+  // Serial.print("The pulselen is: ");
   // Serial.print(pulselen);
   // Serial.println();
   // pwm.setPWM(servonum, 0, pulselen);
+
+  Serial.println("Enter degree to turn to: ");
+  while (Serial.available() == 0) {
+    // Wait for input
+  }
+  int degree = Serial.readStringUntil('\n').toInt();
+  Serial.flush();
+  delay(500);
+  int pulselen = map(degree, 0, 270, SERVOMIN, SERVOMAX);
+
+  Serial.print("Degree entered is: ");
+  Serial.print(degree);
+  Serial.println();
+  Serial.print("Corresponding pulselength is: ");
+  Serial.print(pulselen);
+  Serial.println();
+  pwm.setPWM(servonum, 0, pulselen);
 }
