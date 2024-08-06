@@ -6,7 +6,21 @@
 
 MPU6050 mpu;
 
-float delta_thresholds[6] = {0.5, 0.5, 0.5, 25.0, 25.0, 25.0}; // Thresholds for x, y, z, roll, pitch, yaw
+// Selectable I2C address
+#define MPU6050_ADDRESS_1 0x68
+#define MPU6050_ADDRESS_2 0x69
+uint8_t mpu_address = MPU6050_ADDRESS_1; // Default address, change if needed
+
+// Finger declaration
+const int ringFinger = 39; // GPIO 13 corresponds to the EN pin
+const int middleFinger = 34; // GPIO 36 corresponds to the VP pin
+const int pointerFinger = 35; // GPIO 39 corresponds to the VN pin
+
+int ring;
+int middle;
+int pointer;
+
+float delta_thresholds[6] = {0.3, 0.3, 0.3, 6000.0, 70.0, 120.0}; // Thresholds for x, y, z, roll, pitch, yaw
 
 // MPU6050 offsets (adjust according to your sensor)
 int16_t accelOffsets[3] = {0, 0, 0};   // Accelerometer offsets
@@ -22,13 +36,10 @@ float accelG[3];  // Acceleration in g's (converted from raw accelerometer value
 float gyroDPS[3]; // Gyroscope angular velocity in degrees per second
 
 // Threshold exceedance direction variables
-int accelXThresholdDir;
-int accelYThresholdDir;
-int accelZThresholdDir;
-int gyroXThresholdDir;
-int gyroYThresholdDir;
-int gyroZThresholdDir;
+int ThresholdDir[6] = {0};
 
+//very rough way of skipping latch statements
+bool pauseBuffer; 
 
 float avg_acx = 0.0;
 float avg_acy = 0.0;
@@ -39,6 +50,10 @@ float avg_gyz = 0.0;
 
 // Structure for storing sensor values
 typedef struct {
+  int fingers;
+  float rawx;
+  float rawy;
+  float rawz;
   float x;
   float y;
   float z;
@@ -70,14 +85,70 @@ int getThresholdDirection(float currentValue, float lastValue, float threshold) 
   return 0; // Not exceeded
 }
 
-void latch(int arg, float &store) {
-    if ((arg == 2 && store ==1)||(arg == 1 && store == 2)) {
-        store = 0;
-        delay(100);
+void chooseDirection(int a, int b, int thresholdDir[]){
+  if(thresholdDir[b+3]==0 && thresholdDir[a]!=0){
+    for(int i=0; i<6; i++){
+      if(i!=a){
+        thresholdDir[i]=0;
+      }
     }
-    else if (store == 0){
-      store = arg;
+  }
+  else if(thresholdDir[b+3]!=0){
+    for(int i=0; i<6; i++){
+      if(i!=(b+3)){
+        thresholdDir[i]=0;
+      }
     }
+  }
+}
+
+void latch(int arg, float &store, sensor_values info, bool &ret) {
+    
+      if ((arg == 2 && store ==1)||(arg == 1 && store == 2)) {
+          store = 0;
+          ret = true;
+      }
+      else if (store == 0 && info.x == 0 && info.y == 0 && info.z == 0 && info.roll == 0 && info.pitch == 0 && info.yaw == 0){
+        store = arg;
+        ret = true;
+      }
+      else{
+        ret = false;
+      }
+    
+}
+
+int greatestDiff(float acc[], float last[]){
+  int ret = 0;
+  float biggest = abs(acc[0]-last[0]); 
+  float compare;
+
+  for(int i=1; i<3; i++){
+    compare = abs(acc[i]-last[i]);
+    if(biggest<compare){
+      biggest = compare;
+      ret = i;
+    }
+  }
+  return ret;
+}
+
+int finglation(int ring, int middle, int pointer){
+
+  //int ringdiff = abs(ring-1700);
+  //int middlediff = abs(middle-1700);
+  //int pointerdiff = abs(pointer-1700);
+
+  if (ring>2000 || ring<1400){
+    return 1;
+  }
+  else if(pointer>2000 || pointer<1400){
+    return 2;
+  }
+  else{
+    return 0;
+  }
+
 }
 
 void setup() {
@@ -133,20 +204,29 @@ void setup() {
 
 void loop() {
 
+  pauseBuffer = false;
+
+  ring = analogRead(ringFinger);
+  middle = analogRead(middleFinger);
+  pointer = analogRead(pointerFinger);
+
+  info.fingers = finglation(ring, middle, pointer);
+
   mpu.getMotion6(&accelRaw[0], &accelRaw[1], &accelRaw[2], &gyroRaw[0], &gyroRaw[1], &gyroRaw[2]);
 
     for (int j = 0; j < 3; ++j) {
-      lastLoop[j] = (float)(accelRaw[j] - accelOffsets[j]) / 16384.0;  // 16384 LSB/g for MPU6050
+      lastLoop[j] = (float)(accelRaw[j]) / 16384.0;  // 16384 LSB/g for MPU6050
       lastLoop[j+3] = (float)(gyroRaw[j] - gyroOffsets[j]) / 131.0;    // 131 LSB/(°/s) for MPU6050
     }
 
   delay(10);
+
   // Accumulate readings for averaging
   for (int i = 0; i < 25; ++i) {
     mpu.getMotion6(&accelRaw[0], &accelRaw[1], &accelRaw[2], &gyroRaw[0], &gyroRaw[1], &gyroRaw[2]);
 
     for (int j = 0; j < 3; ++j) {
-      accelG[j] = (float)(accelRaw[j] - accelOffsets[j]) / 16384.0;  // 16384 LSB/g for MPU6050
+      accelG[j] = (float)(accelRaw[j]) / 16384.0;  // 16384 LSB/g for MPU6050
       gyroDPS[j] = (float)(gyroRaw[j] - gyroOffsets[j]) / 131.0;    // 131 LSB/(°/s) for MPU6050
     }
 
@@ -157,20 +237,26 @@ void loop() {
     avg_gyy += gyroDPS[1];
     avg_gyz += gyroDPS[2];
 
-    // Threshold exceedance direction variables
-    accelXThresholdDir = getThresholdDirection(accelG[0], lastLoop[0], delta_thresholds[0]);
-    accelYThresholdDir = getThresholdDirection(accelG[1], lastLoop[1], delta_thresholds[1]);
-    accelZThresholdDir = getThresholdDirection(accelG[2], lastLoop[2], delta_thresholds[2]);
-    gyroXThresholdDir = getThresholdDirection(gyroDPS[0], lastLoop[3], delta_thresholds[3]);
-    gyroYThresholdDir = getThresholdDirection(gyroDPS[1], lastLoop[4], delta_thresholds[4]);
-    gyroZThresholdDir = getThresholdDirection(gyroDPS[2], lastLoop[5], delta_thresholds[5]);
+        // Threshold exceedance direction variables
+    ThresholdDir[0] = getThresholdDirection(accelG[0], lastLoop[0], delta_thresholds[0]);
+    ThresholdDir[1] = getThresholdDirection(accelG[1], lastLoop[1], delta_thresholds[1]);
+    ThresholdDir[2] = getThresholdDirection(accelG[2], lastLoop[2], delta_thresholds[2]);
+    ThresholdDir[3] = getThresholdDirection(gyroDPS[0], lastLoop[3], delta_thresholds[3]);
+    ThresholdDir[4] = getThresholdDirection(gyroDPS[1], lastLoop[4], delta_thresholds[4]);
+    ThresholdDir[5] = getThresholdDirection(gyroDPS[2], lastLoop[5], delta_thresholds[5]);
 
-    latch(accelXThresholdDir, info.x);
-    latch(accelYThresholdDir, info.y);
-    latch(accelZThresholdDir, info.z);
-    latch(gyroXThresholdDir, info.pitch);
-    latch(gyroYThresholdDir, info.roll);
-    latch(gyroZThresholdDir, info.yaw);
+    int gda = greatestDiff(accelG, lastLoop);
+    int gdg = greatestDiff(gyroDPS, lastLoop);
+
+    chooseDirection(gda, gdg, ThresholdDir);
+
+    //Serial.print("ThresholdDir[0]: "); Serial.print(ThresholdDir[0]); Serial.print("ThresholdDir[1]: "); Serial.print(ThresholdDir[1]); Serial.print("ThresholdDir[2]: "); Serial.print(ThresholdDir[2]); Serial.print("ThresholdDir[3]: "); Serial.print(ThresholdDir[3]); Serial.print("ThresholdDir[4]: "); Serial.print(ThresholdDir[4]); Serial.print("ThresholdDir[5]: "); Serial.println(ThresholdDir[5]);
+    latch(ThresholdDir[0], info.x, info, pauseBuffer);
+    latch(ThresholdDir[1], info.y, info, pauseBuffer);
+    latch(ThresholdDir[2], info.z, info, pauseBuffer);
+    latch(ThresholdDir[3], info.pitch, info, pauseBuffer);
+    latch(ThresholdDir[4], info.roll, info, pauseBuffer);
+    latch(ThresholdDir[5], info.yaw, info, pauseBuffer);
     
 
     lastLoop[0] = accelG[0];
@@ -191,19 +277,27 @@ void loop() {
   avg_gyy /= 25.0;
   avg_gyz /= 25.0;
 
+
+  //store avg info in espnow message
+  info.rawx = avg_acx;
+  info.rawy = avg_acy;
+  info.rawz = avg_acz;
+
   // Print data
+  
   Serial.print("X: ");
-  Serial.print(avg_acx);
+  Serial.print(info.rawx);
   Serial.print("   Y: ");
-  Serial.print(avg_acy);
+  Serial.print(info.rawy);
   Serial.print("   Z: ");
-  Serial.print(avg_acz);
+  Serial.print(info.rawz);
   Serial.print("   GX: ");
   Serial.print(avg_gyx);
   Serial.print("   GY: ");
   Serial.print(avg_gyy);
   Serial.print("   GZ: ");
   Serial.println(avg_gyz);
+  
 
     // Print motion
   Serial.print("Xmotion: ");
@@ -218,6 +312,15 @@ void loop() {
   Serial.print(info.roll);
   Serial.print("   GZmotion: ");
   Serial.println(info.yaw);
+
+  
+  Serial.print("Ring Pin Value: ");
+  Serial.print(ring);
+  Serial.print("   Middle Pin Value: ");
+  Serial.print(middle);
+  Serial.print("   Pointer Pin Value: ");
+  Serial.println(pointer);
+  
 
   // Send data using ESP-NOW
   esp_err_t result = esp_now_send(0, (uint8_t *)&info, sizeof(sensor_values));
