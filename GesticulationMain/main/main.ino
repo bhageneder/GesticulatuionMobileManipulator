@@ -149,6 +149,16 @@ void OnDataRecv(const esp_now_recv_info *info, const uint8_t *incomingData, int 
       Serial.println();
     }
 
+    if (jointinfo.rawy > 0.6) {
+      turnLeft();
+    } else if (jointinfo.rawy < -0.6) {
+      turnRight();
+    } else if (jointinfo.rawx > 0.5) {
+      moveForward();
+    } else {
+      moveStop();
+    }
+
   } else if (armMode) {
     Serial.println("Arm Mode!");
     int pulse = 0;
